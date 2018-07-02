@@ -6,7 +6,10 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.Icon;
@@ -24,6 +27,11 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreePath;
 
+import org.apache.zookeeper.ZooDefs.Perms;
+import org.apache.zookeeper.data.ACL;
+
+import com.alibaba.fastjson.JSON;
+
 import cn.zkspy.gui.nodeviewer.AbstractNodeViewer;
 import cn.zkspy.gui.nodeviewer.AclViewer;
 import cn.zkspy.gui.nodeviewer.DataViewer;
@@ -31,6 +39,7 @@ import cn.zkspy.gui.nodeviewer.MetaDataViewer;
 import cn.zkspy.manager.client.ZookeeperClient;
 
 public class ZkspyNodeViewerPanel extends JPanel implements TreeSelectionListener {
+
 
 	/**
 	 * 
@@ -57,10 +66,11 @@ public class ZkspyNodeViewerPanel extends JPanel implements TreeSelectionListene
 		ClassLoader loader = Thread.currentThread().getContextClassLoader();
 		Icon refreshBtnIcon = new ImageIcon(loader.getResource(Constant.IconPath.REFRESH));
 		JButton refreshBtn = new JButton(refreshBtnIcon);
-		refreshBtn.setToolTipText("舒心数据");
+		refreshBtn.setToolTipText("刷新数据");
 		refreshBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
+				//TODO 查询数据 
+				ZkspyNodeViewerPanel.this.executeWork();
 			}
 
 		});
@@ -94,7 +104,6 @@ public class ZkspyNodeViewerPanel extends JPanel implements TreeSelectionListene
 	}
 
 	public void valueChanged(TreeSelectionEvent e) {
-
 		TreePath[] paths = e.getPaths();
 
 		TreePath curPath = paths[0];
@@ -114,45 +123,37 @@ public class ZkspyNodeViewerPanel extends JPanel implements TreeSelectionListene
 
 		this.curNodePath = sb.toString();
 		this.curPathTextPane.setText(curNodePath);
+		
+		this.executeWork();
+	}
 
+	private void changeNodeViewer(NodeData nodeData) {
+		for (AbstractNodeViewer viewer : nodeViewerList) {
+			viewer.refreshViewer(nodeData);
+		}
+	}
+	
+	private void executeWork()
+	{
 		SwingWorker<NodeData, Void> worker = new SwingWorker<NodeData, Void>() {
-
 			@Override
 			protected NodeData doInBackground() throws Exception {
-				byte[] bytes = ZookeeperClient.getClient().getData().forPath(ZkspyNodeViewerPanel.this.curNodePath);
-				NodeData curNodeData = new NodeData();
-				curNodeData.setCurPath(ZkspyNodeViewerPanel.this.curNodePath);
-				if (null != bytes) {
-					String curData = new String(bytes);
-					curNodeData.setData(curData);
-				}
-				return curNodeData;
+			
+				return ZookeeperClient.getAllData(ZkspyNodeViewerPanel.this.curNodePath);
 			}
-
 			@Override
 			protected void done() {
 				try {
 
 					NodeData curNodeData = get();
 					ZkspyNodeViewerPanel.this.changeNodeViewer(curNodeData);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
 		};
 		if (null != curNodePath && !"".equals(curNodePath.trim())) {
 			worker.execute();
-		}
-
-	}
-
-	private void changeNodeViewer(NodeData nodeData) {
-		for (AbstractNodeViewer viewer : nodeViewerList) {
-			viewer.refreshViewer(nodeData);
 		}
 	}
 
