@@ -7,39 +7,31 @@ import javax.swing.JTextArea;
 
 public class DataViewer extends AbstractNodeViewer {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 6046382935191206613L;
-	private JTextArea dataArea;
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 6046382935191206613L;
 
-	public DataViewer(String title) {
-		this.setLayout(new BorderLayout());
-		this.title = title;
-		this.dataArea = new JTextArea();
-		this.dataArea.setLineWrap(true);
-		this.dataArea.setEditable(false);
-		JScrollPane scroller = new JScrollPane(this.dataArea);
-		scroller.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		this.add(scroller, BorderLayout.CENTER);
-	}
+    private JTextArea dataArea;
 
-	@Override
-	protected void handleNodeData() {
-		// TODO Auto-generated method stub
+    public DataViewer(String title) {
+        this.setLayout(new BorderLayout());
+        this.title = title;
+        this.dataArea = new JTextArea();
+        this.dataArea.setLineWrap(true);
+        this.dataArea.setEditable(false);
+        JScrollPane scroller = new JScrollPane(this.dataArea);
+        scroller.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        this.add(scroller, BorderLayout.CENTER);
+    }
 
-	}
+    @Override
+    protected void changeViewer() {
+        this.dataArea.setText(this.nodeData.getData());
+    }
 
-	@Override
-	protected void changeViewer() {
-		// TODO Auto-generated method stub
-		this.dataArea.setText(this.nodeData.getData());
-	}
-
-	@Override
-	protected void refreshNodeViewer() {
-		// TODO Auto-generated method stub
-
-	}
-
+    @Override
+    public void cleanViewer() {
+        this.dataArea.setText("");
+    }
 }

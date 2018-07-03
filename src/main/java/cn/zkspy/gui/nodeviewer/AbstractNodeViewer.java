@@ -2,36 +2,38 @@ package cn.zkspy.gui.nodeviewer;
 
 import javax.swing.JPanel;
 
-import cn.zkspy.gui.NodeData;
+import cn.zkspy.curator.client.NodeData;
 
 public abstract class AbstractNodeViewer extends JPanel {
 
-	protected NodeData nodeData;
+    /**
+     * serialVersionUID <br>
+     */
+    private static final long serialVersionUID = -3909851700296346236L;
 
-	protected String title;
+    protected NodeData nodeData;
 
-	public void refreshViewer(NodeData nodeData) {
-		this.nodeData = nodeData;
-		handleNodeData();
-		changeViewer();
-	}
+    protected String title;
 
-	protected abstract void handleNodeData();
+    public void refreshViewer(NodeData nodeData) {
+        this.nodeData = nodeData;
+        changeViewer();
+    }
+    
+    public abstract void cleanViewer();
 
-	protected abstract void changeViewer();
+    protected abstract void changeViewer();
 
-	public NodeData getNodeData() {
-		return nodeData;
-	}
+    public NodeData getNodeData() {
+        return nodeData;
+    }
 
-	public void setNodeData(NodeData nodeData) {
-		this.nodeData = nodeData;
-	}
+    public void setNodeData(NodeData nodeData) {
+        this.nodeData = nodeData;
+    }
 
-	public String getTitle() {
-		return this.title;
-	}
-	
-	protected abstract void refreshNodeViewer();
+    public String getTitle() {
+        return this.title;
+    }
 
 }
